@@ -12,11 +12,12 @@
 (select-module kasvi.commands.generate)
 
 
-(define (dir-spec name cmds)
+(define (dir-spec name cmds :optional bin)
+  (if bin
   `(,name
      ((readme.rst ,(gen-file 'readme-rst))
       ,(path-swap-extension name "leh")
-      ; (bin ((,name ,(gen-file 'bin))))
+      (bin ((,name ,(gen-file 'bin))))
       (lib
         ((,(path-swap-extension name "scm") ,(gen-file 'lib))
          (,name ((core.scm ,(gen-file 'lib-core))
@@ -24,7 +25,19 @@
                  (commands ,(if (null? cmds)
                               (command-list '("help") make-lib-commands-list)
                               (command-list cmds make-lib-commands-list)))
-                 (commands.scm ,(gen-file 'lib-commands)))))))))
+                 (commands.scm ,(gen-file 'lib-commands)))))))) 
+  `(,name
+     ((readme.rst ,(gen-file 'readme-rst))
+      ,(path-swap-extension name "leh")
+      (lib
+        ((,(path-swap-extension name "scm") ,(gen-file 'lib))
+         (,name ((core.scm ,(gen-file 'lib-core))
+                 (cli.scm ,(gen-file 'lib-cli))
+                 (commands ,(if (null? cmds)
+                              (command-list '("help") make-lib-commands-list)
+                              (command-list cmds make-lib-commands-list)))
+                 (commands.scm ,(gen-file 'lib-commands))))))))) 
+  )
 
 (define (gen-file command)
   (match command
@@ -160,28 +173,44 @@
   (let ((path (build-path (current-directory)
                           name "bin" name)))
     (if (file-exists? path)
-    (run-process `(chmod +x ,path) :wait #t))  
+      (run-process `(chmod +x ,path) :wait #t))  
     ))
 
 (define (git-init dir)
   (current-directory dir)
   (run-process '(git init) :wait #t))
 
+;
+; (define (generate-lehti args)
+;   (let ((name (car args))
+;         (cmds (cdr args)))
+;     (cond
+;       ((file-exists? name)
+;        (exit 1 "directory ~a exists!" name))
+;       (else
+;         (message name)
+;         (create-directory-tree
+;           (current-directory)
+;           (dir-spec name cmds))
+;         (file->executable name)
+;         (git-init name)))))
 
 (define (generate-lehti args)
-  (let ((name (car args))
-        (cmds (cdr args)))
-    (cond
-      ((file-exists? name)
-       (exit 1 "directory ~a exists!" name))
-      (else
-        (message name)
-        (create-directory-tree
-          (current-directory)
-          (dir-spec name cmds))
-        (file->executable name)
-        (git-init name))))
-  )
+  (let ((name (car args)))
+    (let-args (cdr args)
+      ((bin "b|bin")
+       . cmds)
+      (cond
+        ((file-exists? name)
+         (exit 1 "directory ~a exists!" name))
+        (else
+          (message name)
+          (create-directory-tree
+            (current-directory)
+            (dir-spec name cmds bin))
+          (file->executable name)
+          (git-init name)))
+      )))
 
 (define (help status)
   (exit status "lehti generate: ~a <command> <package-name>\n" "lehti"))
