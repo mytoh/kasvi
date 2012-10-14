@@ -1,0 +1,9 @@
+":"; exec gosh -- $0 "$@"
+
+(add-load-path "../src" :relative)
+(use kasvi.cli :prefix cli:)
+
+(define (main args)
+  (cli:runner args))
+
+;; vim:filetype=scheme
