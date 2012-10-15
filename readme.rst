@@ -7,7 +7,8 @@ Usage:
 ------
 ::
 
-      kasvi leh yourapp
+      $ kasvi leh yourapp
+      $ tree
       .
       └── yourapp
           ├── lib
