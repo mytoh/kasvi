@@ -8,21 +8,16 @@ Usage:
 ::
 
       $ kasvi leh yourapp
-      $ tree
-      .
-      └── yourapp
-          ├── lib
-          │   ├── yourapp
-          │   │   ├── cli.scm
-          │   │   ├── commands
-          │   │   │   └── help.scm
-          │   │   ├── commands.scm
-          │   │   └── core.scm
-          │   └── yourapp.scm
-          ├── readme.rst
-          └── yourapp.leh
-
-      4 directories, 7 files
+      $ tree yourapp
+      yourapp/
+      ├── lib
+      │   ├── yourapp
+      │   │   └── core.scm
+      │   └── yourapp.scm
+      ├── readme.rst
+      └── yourapp.leh
+      
+      2 directories, 4 files
 
 
 Install:

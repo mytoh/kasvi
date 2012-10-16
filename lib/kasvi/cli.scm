@@ -17,5 +17,9 @@
       (match (car  rest)
         ;; actions
         ("leh"
-         (generate-lehti (cdr rest)))
+         (generate-lehti rest))
+        ((or "exec" "execute" "e")
+         (execute rest))
+        ((or "console" "c")
+         (console ))
         (_ (exit 0))))))

@@ -25,18 +25,14 @@
                  (commands ,(if (null? cmds)
                               (command-list '("help") make-lib-commands-list)
                               (command-list cmds make-lib-commands-list)))
-                 (commands.scm ,(gen-file 'lib-commands)))))))) 
+                 (commands.scm ,(gen-file 'lib-commands))))))))
   `(,name
      ((readme.rst ,(gen-file 'readme-rst))
       ,(path-swap-extension name "leh")
       (lib
         ((,(path-swap-extension name "scm") ,(gen-file 'lib))
          (,name ((core.scm ,(gen-file 'lib-core))
-                 (cli.scm ,(gen-file 'lib-cli))
-                 (commands ,(if (null? cmds)
-                              (command-list '("help") make-lib-commands-list)
-                              (command-list cmds make-lib-commands-list)))
-                 (commands.scm ,(gen-file 'lib-commands))))))))) 
+                 )))))))
   )
 
 (define (gen-file command)
@@ -173,31 +169,17 @@
   (let ((path (build-path (current-directory)
                           name "bin" name)))
     (if (file-exists? path)
-      (run-process `(chmod +x ,path) :wait #t))  
+      (run-process `(chmod +x ,path) :wait #t))
     ))
 
 (define (git-init dir)
   (current-directory dir)
   (run-process '(git init) :wait #t))
 
-;
-; (define (generate-lehti args)
-;   (let ((name (car args))
-;         (cmds (cdr args)))
-;     (cond
-;       ((file-exists? name)
-;        (exit 1 "directory ~a exists!" name))
-;       (else
-;         (message name)
-;         (create-directory-tree
-;           (current-directory)
-;           (dir-spec name cmds))
-;         (file->executable name)
-;         (git-init name)))))
 
 (define (generate-lehti args)
-  (let ((name (car args)))
-    (let-args (cdr args)
+  (let ((name (cadr args)))
+    (let-args (cddr args)
       ((bin "b|bin")
        . cmds)
       (cond
