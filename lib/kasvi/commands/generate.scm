@@ -3,6 +3,7 @@
 
 (define-module kasvi.commands.generate
   (export generate-lehti)
+  (use kasvi.commands.generate.util)
   (use file.util)
   (use util.list)
   (use text.tree)
@@ -14,25 +15,25 @@
 
 (define (dir-spec name cmds :optional bin)
   (if bin
-  `(,name
-     ((readme.rst ,(gen-file 'readme-rst))
-      ,(path-swap-extension name "leh")
-      (bin ((,name ,(gen-file 'bin))))
-      (lib
-        ((,(path-swap-extension name "scm") ,(gen-file 'lib))
-         (,name ((core.scm ,(gen-file 'lib-core))
-                 (cli.scm ,(gen-file 'lib-cli))
-                 (commands ,(if (null? cmds)
-                              (command-list '("help") make-lib-commands-list)
-                              (command-list cmds make-lib-commands-list)))
-                 (commands.scm ,(gen-file 'lib-commands))))))))
-  `(,name
-     ((readme.rst ,(gen-file 'readme-rst))
-      ,(path-swap-extension name "leh")
-      (lib
-        ((,(path-swap-extension name "scm") ,(gen-file 'lib))
-         (,name ((core.scm ,(gen-file 'lib-core))
-                 )))))))
+    `(,name
+       ((readme.rst ,(gen-file 'readme-rst))
+        ,(path-swap-extension name "leh")
+        (bin ((,name ,(gen-file 'bin))))
+        (lib
+          ((,(path-swap-extension name "scm") ,(gen-file 'lib))
+           (,name ((core.scm ,(gen-file 'lib-core))
+                   (cli.scm ,(gen-file 'lib-cli))
+                   (commands ,(if (null? cmds)
+                                (command-list '("help") make-lib-commands-list)
+                                (command-list cmds make-lib-commands-list)))
+                   (commands.scm ,(gen-file 'lib-commands))))))))
+    `(,name
+       ((readme.rst ,(gen-file 'readme-rst))
+        ,(path-swap-extension name "leh")
+        (lib
+          ((,(path-swap-extension name "scm") ,(gen-file 'lib))
+           (,name ((core.scm ,(gen-file 'lib-core))
+                   )))))))
   )
 
 (define (gen-file command)
@@ -163,14 +164,15 @@
 
 (define (message name)
   (print
-    (string-append "created new app in: " name)))
+    (string-append "(" (current-directory) ")")))
 
 (define (file->executable name)
   (let ((path (build-path (current-directory)
-                          name "bin" name)))
-    (if (file-exists? path)
-      (run-process `(chmod +x ,path) :wait #t))
-    ))
+                            name "bin" name)))
+      (cond 
+        ( (file-exists? path)  
+      (sys-chmod path #o755))
+      )))
 
 (define (git-init dir)
   (current-directory dir)
@@ -187,12 +189,11 @@
          (exit 1 "directory ~a exists!" name))
         (else
           (message name)
-          (create-directory-tree
+          (create-directory-tree-with-colour
             (current-directory)
             (dir-spec name cmds bin))
           (file->executable name)
-          (git-init name)))
-      )))
+          (git-init name))))))
 
 (define (help status)
   (exit status "lehti generate: ~a <command> <package-name>\n" "lehti"))
