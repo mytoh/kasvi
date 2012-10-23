@@ -1,5 +1,4 @@
 
-
 ;; -*- coding: utf-8 -*-
 
 (define-module kasvi.commands.console
@@ -18,7 +17,5 @@
 (define (console)
   (if (find-file-in-paths "rlwrap")
   (run-process `(rlwrap gosh -Ilib) :wait #t)
-  (run-process `(gosh -Ilib) :wait #t)
-  )  
-  )
+  (run-process `(gosh -Ilib) :wait #t))  )
 
