@@ -1,8 +1,11 @@
 
+(spec
+  '(files ("lib/**/*.scm"
+           "bin/*"
+           "*.lehspec"
+           "readme*"
+           "test/**/*.scm"))
 
-(files ("lib/**/*.scm"
-        "bin/*"
-        "*.lehspec"
-        "readme*"
-        "test/**/*.scm"))
+  '(dependencies
+     ("makiki")))
 
